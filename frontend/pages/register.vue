@@ -81,6 +81,16 @@ const form = reactive({
   password: ''
 })
 
+useHead({
+  title: 'Cadastro',
+  meta: [
+    {
+      name: 'description',
+      content: 'Crie sua conta CineSound e organize inspirações audiovisuais com suavidade.'
+    }
+  ]
+})
+
 const handleSubmit = async (event: FormSubmitEvent<typeof form>) => {
   const { name, email, password } = event.data
 

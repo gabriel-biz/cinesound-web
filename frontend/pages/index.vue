@@ -103,6 +103,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+useHead({
+  title: 'Favoritos',
+  meta: [
+    {
+      name: 'description',
+      content: 'Visualize destaques das suas coleções de filmes e músicas com a atmosfera serena do CineSound.'
+    }
+  ]
+})
+
 interface MovieItem {
   id: number
   title: string

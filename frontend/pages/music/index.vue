@@ -106,6 +106,38 @@
 import type { FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref, watch } from 'vue'
 
+useHead({
+  title: 'Músicas',
+  meta: [
+    {
+      name: 'description',
+      content: 'Cuide do repertório que embala seus momentos de devoção com o acervo musical do CineSound.'
+    }
+  ]
+})
+
+const toast = useToast()
+
+const resolveErrorMessage = (error: unknown) => {
+  if (error && typeof error === 'object') {
+    const maybeData = (error as { data?: unknown }).data
+
+    if (typeof maybeData === 'string') {
+      return maybeData
+    }
+
+    if (maybeData && typeof maybeData === 'object' && 'message' in maybeData) {
+      return String((maybeData as { message: unknown }).message)
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return 'Tente novamente em instantes.'
+}
+
 interface SongItem {
   id: number
   title: string
@@ -165,8 +197,20 @@ const handleCreate = async (event: FormSubmitEvent<CreateSongForm>) => {
     })
     await refresh()
     closeCreate()
+    toast.add({
+      title: 'Música adicionada',
+      description: 'A canção agora faz parte do seu repertório devocional.',
+      color: 'worship',
+      icon: 'i-heroicons-musical-note'
+    })
   } catch (error) {
     console.error('Não foi possível criar a música', error)
+    toast.add({
+      title: 'Não foi possível criar a música',
+      description: resolveErrorMessage(error),
+      color: 'red',
+      icon: 'i-heroicons-x-circle'
+    })
   } finally {
     creating.value = false
   }
@@ -180,8 +224,20 @@ const handleDelete = async (id: number) => {
       method: 'DELETE'
     })
     await refresh()
+    toast.add({
+      title: 'Música removida',
+      description: 'A melodia foi retirada da sua seleção.',
+      color: 'gray',
+      icon: 'i-heroicons-trash'
+    })
   } catch (error) {
     console.error('Não foi possível remover a música', error)
+    toast.add({
+      title: 'Não foi possível remover a música',
+      description: resolveErrorMessage(error),
+      color: 'red',
+      icon: 'i-heroicons-x-circle'
+    })
   } finally {
     deletingId.value = null
   }

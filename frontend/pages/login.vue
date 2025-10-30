@@ -82,6 +82,16 @@ import { useAuthStore } from '~/stores/auth'
 const auth = useAuthStore()
 const route = useRoute()
 
+useHead({
+  title: 'Entrar',
+  meta: [
+    {
+      name: 'description',
+      content: 'Acesse o espaço CineSound para cuidar dos seus filmes e músicas favoritos.'
+    }
+  ]
+})
+
 const form = reactive({
   email: '',
   password: ''

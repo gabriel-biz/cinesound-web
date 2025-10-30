@@ -23,7 +23,7 @@
 
       <div class="flex items-center gap-3">
         <span v-if="displayName" class="hidden text-sm text-slate-600 md:block dark:text-slate-300">
-          Olá, {{ displayName }}
+          {{ greeting }}, {{ displayName }}
         </span>
         <UButton color="worship" variant="soft" icon="i-heroicons-arrow-right-on-rectangle" @click="emitLogout">
           Sair
@@ -34,6 +34,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useAuthStore } from '~/stores/auth'
+
 const emit = defineEmits<{ logout: [] }>()
 
 const auth = useAuthStore()
@@ -58,6 +61,20 @@ const navLinks = computed(() => [
 ])
 
 const displayName = computed(() => auth.user?.name ?? '')
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+
+  if (hour < 12) {
+    return 'Bom dia'
+  }
+
+  if (hour < 18) {
+    return 'Boa tarde'
+  }
+
+  return 'Boa noite'
+})
 
 const emitLogout = () => {
   emit('logout')

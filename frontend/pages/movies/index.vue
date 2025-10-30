@@ -102,6 +102,38 @@
 import type { FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref, watch } from 'vue'
 
+useHead({
+  title: 'Filmes',
+  meta: [
+    {
+      name: 'description',
+      content: 'Gerencie os filmes que inspiram sua caminhada de adoração no acervo do CineSound.'
+    }
+  ]
+})
+
+const toast = useToast()
+
+const resolveErrorMessage = (error: unknown) => {
+  if (error && typeof error === 'object') {
+    const maybeData = (error as { data?: unknown }).data
+
+    if (typeof maybeData === 'string') {
+      return maybeData
+    }
+
+    if (maybeData && typeof maybeData === 'object' && 'message' in maybeData) {
+      return String((maybeData as { message: unknown }).message)
+    }
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return 'Tente novamente em instantes.'
+}
+
 interface MovieItem {
   id: number
   title: string
@@ -161,8 +193,20 @@ const handleCreate = async (event: FormSubmitEvent<CreateMovieForm>) => {
     })
     await refresh()
     closeCreate()
+    toast.add({
+      title: 'Filme adicionado',
+      description: 'O título foi registrado com carinho na sua coleção.',
+      color: 'worship',
+      icon: 'i-heroicons-check-circle'
+    })
   } catch (error) {
     console.error('Não foi possível criar o filme', error)
+    toast.add({
+      title: 'Não foi possível criar o filme',
+      description: resolveErrorMessage(error),
+      color: 'red',
+      icon: 'i-heroicons-x-circle'
+    })
   } finally {
     creating.value = false
   }
@@ -176,8 +220,20 @@ const handleDelete = async (id: number) => {
       method: 'DELETE'
     })
     await refresh()
+    toast.add({
+      title: 'Filme removido',
+      description: 'Removemos o registro da sua coleção.',
+      color: 'gray',
+      icon: 'i-heroicons-trash'
+    })
   } catch (error) {
     console.error('Não foi possível remover o filme', error)
+    toast.add({
+      title: 'Não foi possível remover o filme',
+      description: resolveErrorMessage(error),
+      color: 'red',
+      icon: 'i-heroicons-x-circle'
+    })
   } finally {
     deletingId.value = null
   }
