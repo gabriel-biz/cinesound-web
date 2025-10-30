@@ -36,28 +36,34 @@
 
         <ul v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <li v-for="song in songs" :key="song.id" class="h-full">
-            <UCard class="flex h-full flex-col justify-between bg-white/80 dark:bg-slate-900/70">
-              <div class="space-y-2">
-                <p class="text-sm font-medium uppercase tracking-[0.25em] text-lilac-500">Música</p>
-                <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ song.title }}</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ song.artist }}</p>
-              </div>
-              <div class="mt-6 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                <span class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-musical-note" class="text-lilac-500" />
-                  Reverente
-                </span>
-                <UButton
-                  color="red"
-                  variant="ghost"
-                  icon="i-heroicons-trash"
-                  :loading="deletingId === song.id"
-                  @click="handleDelete(song.id)"
-                >
-                  Remover
-                </UButton>
-              </div>
-            </UCard>
+            <ItemCard
+              label="Música"
+              :title="song.title"
+              :description="song.artist"
+              accent="lilac"
+              icon="i-heroicons-musical-note"
+              meta-label="Reverente"
+            >
+              <template #actions>
+                <div class="flex items-center gap-2">
+                  <FavoriteToggle
+                    :model-value="isSongFavorite(song.id)"
+                    active-label="Remover das canções amadas"
+                    inactive-label="Marcar como canção amada"
+                    @update:modelValue="(value) => updateSongFavorite(song.id, value)"
+                  />
+                  <UButton
+                    color="red"
+                    variant="ghost"
+                    icon="i-heroicons-trash"
+                    :loading="deletingId === song.id"
+                    @click="handleDelete(song.id)"
+                  >
+                    Remover
+                  </UButton>
+                </div>
+              </template>
+            </ItemCard>
           </li>
         </ul>
       </div>
@@ -98,7 +104,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 interface SongItem {
   id: number
@@ -128,6 +134,8 @@ const createForm = reactive<CreateSongForm>({
   title: '',
   artist: ''
 })
+
+const favoriteSongs = ref<number[]>([])
 
 const openCreate = () => {
   isCreateOpen.value = true
@@ -178,6 +186,28 @@ const handleDelete = async (id: number) => {
     deletingId.value = null
   }
 }
+
+const isSongFavorite = (id: number) => favoriteSongs.value.includes(id)
+
+const updateSongFavorite = (id: number, value: boolean) => {
+  if (value) {
+    if (!favoriteSongs.value.includes(id)) {
+      favoriteSongs.value = [...favoriteSongs.value, id]
+    }
+    return
+  }
+
+  favoriteSongs.value = favoriteSongs.value.filter((songId) => songId !== id)
+}
+
+watch(
+  songs,
+  (songList) => {
+    const ids = new Set((songList ?? []).map((song) => song.id))
+    favoriteSongs.value = favoriteSongs.value.filter((id) => ids.has(id))
+  },
+  { immediate: true }
+)
 
 definePageMeta({
   middleware: ['auth']

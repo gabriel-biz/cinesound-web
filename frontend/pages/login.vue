@@ -16,6 +16,14 @@
     />
 
     <UAlert
+      color="gray"
+      icon="i-heroicons-information-circle"
+      variant="soft"
+      title="Acesso rápido"
+      description="Para explorar rapidamente, use adorador@cinesound.dev com a senha adoracao123."
+    />
+
+    <UAlert
       v-if="auth.error"
       color="red"
       icon="i-heroicons-exclamation-triangle"

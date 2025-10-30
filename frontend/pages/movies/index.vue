@@ -36,28 +36,25 @@
 
         <ul v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <li v-for="movie in movies" :key="movie.id" class="h-full">
-            <UCard class="flex h-full flex-col justify-between bg-white/80 dark:bg-slate-900/70">
-              <div class="space-y-2">
-                <p class="text-sm font-medium uppercase tracking-[0.25em] text-worship-500">Filme</p>
-                <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ movie.title }}</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">{{ movie.description }}</p>
-              </div>
-              <div class="mt-6 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                <span class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-heart" class="text-worship-500" />
-                  Inspirador
-                </span>
-                <UButton
-                  color="red"
-                  variant="ghost"
-                  icon="i-heroicons-trash"
-                  :loading="deletingId === movie.id"
-                  @click="handleDelete(movie.id)"
-                >
-                  Remover
-                </UButton>
-              </div>
-            </UCard>
+            <ItemCard label="Filme" :title="movie.title" :description="movie.description" icon="i-heroicons-heart">
+              <template #actions>
+                <div class="flex items-center gap-2">
+                  <FavoriteToggle
+                    :model-value="isMovieFavorite(movie.id)"
+                    @update:modelValue="(value) => updateMovieFavorite(movie.id, value)"
+                  />
+                  <UButton
+                    color="red"
+                    variant="ghost"
+                    icon="i-heroicons-trash"
+                    :loading="deletingId === movie.id"
+                    @click="handleDelete(movie.id)"
+                  >
+                    Remover
+                  </UButton>
+                </div>
+              </template>
+            </ItemCard>
           </li>
         </ul>
       </div>
@@ -103,7 +100,7 @@
 
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 interface MovieItem {
   id: number
@@ -133,6 +130,8 @@ const createForm = reactive<CreateMovieForm>({
   title: '',
   description: ''
 })
+
+const favoriteMovies = ref<number[]>([])
 
 const openCreate = () => {
   isCreateOpen.value = true
@@ -183,6 +182,28 @@ const handleDelete = async (id: number) => {
     deletingId.value = null
   }
 }
+
+const isMovieFavorite = (id: number) => favoriteMovies.value.includes(id)
+
+const updateMovieFavorite = (id: number, value: boolean) => {
+  if (value) {
+    if (!favoriteMovies.value.includes(id)) {
+      favoriteMovies.value = [...favoriteMovies.value, id]
+    }
+    return
+  }
+
+  favoriteMovies.value = favoriteMovies.value.filter((movieId) => movieId !== id)
+}
+
+watch(
+  movies,
+  (movieList) => {
+    const ids = new Set((movieList ?? []).map((movie) => movie.id))
+    favoriteMovies.value = favoriteMovies.value.filter((id) => ids.has(id))
+  },
+  { immediate: true }
+)
 
 definePageMeta({
   middleware: ['auth']
