@@ -1,5 +1,5 @@
-import { db } from '../_mockDb'
+import { listMusic } from '../_mockDb'
 
 export default defineEventHandler(() => {
-  return db.music
+  return listMusic()
 })

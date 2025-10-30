@@ -1,5 +1,5 @@
-import { createError, readBody } from 'h3'
-import { db } from '../_mockDb'
+import { createError, readBody, setResponseStatus } from 'h3'
+import { createMovie } from '../_mockDb'
 
 interface CreateMovieBody {
   title?: string
@@ -16,14 +16,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const movie = {
-    id: db.nextMovieId++,
+  const movie = createMovie({
     title: body.title,
-    description: body.description,
-    createdAt: new Date().toISOString()
-  }
+    description: body.description
+  })
 
-  db.movies.unshift(movie)
+  setResponseStatus(event, 201)
 
   return movie
 })

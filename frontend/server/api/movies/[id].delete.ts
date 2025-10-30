@@ -1,5 +1,5 @@
 import { createError, getRouterParam } from 'h3'
-import { db } from '../_mockDb'
+import { removeMovie } from '../_mockDb'
 
 export default defineEventHandler((event) => {
   const idParam = getRouterParam(event, 'id')
@@ -12,16 +12,14 @@ export default defineEventHandler((event) => {
     })
   }
 
-  const index = db.movies.findIndex((movie) => movie.id === id)
+  const removed = removeMovie(id)
 
-  if (index === -1) {
+  if (!removed) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Filme não encontrado.'
     })
   }
-
-  db.movies.splice(index, 1)
 
   return {
     success: true

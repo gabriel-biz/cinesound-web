@@ -1,5 +1,5 @@
-import { createError, readBody } from 'h3'
-import { db } from '../_mockDb'
+import { createError, readBody, setResponseStatus } from 'h3'
+import { createMusic } from '../_mockDb'
 
 interface CreateSongBody {
   title?: string
@@ -16,14 +16,12 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const song = {
-    id: db.nextMusicId++,
+  const song = createMusic({
     title: body.title,
-    artist: body.artist,
-    createdAt: new Date().toISOString()
-  }
+    artist: body.artist
+  })
 
-  db.music.unshift(song)
+  setResponseStatus(event, 201)
 
   return song
 })

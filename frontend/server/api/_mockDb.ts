@@ -19,6 +19,16 @@ export interface MusicRecord {
   createdAt: string
 }
 
+export interface CreateMovieInput {
+  title: string
+  description: string
+}
+
+export interface CreateMusicInput {
+  title: string
+  artist: string
+}
+
 interface MockDatabase {
   users: Map<string, StoredUser>
   movies: MovieRecord[]
@@ -91,3 +101,55 @@ export const toAuthUser = (user: StoredUser) => ({
   name: user.name,
   email: user.email
 })
+
+export const listMovies = () => [...mockDatabase.movies]
+
+export const createMovie = ({ title, description }: CreateMovieInput): MovieRecord => {
+  const movie: MovieRecord = {
+    id: mockDatabase.nextMovieId++,
+    title,
+    description,
+    createdAt: new Date().toISOString()
+  }
+
+  mockDatabase.movies.unshift(movie)
+
+  return movie
+}
+
+export const removeMovie = (id: number) => {
+  const index = mockDatabase.movies.findIndex((movie) => movie.id === id)
+
+  if (index === -1) {
+    return false
+  }
+
+  mockDatabase.movies.splice(index, 1)
+  return true
+}
+
+export const listMusic = () => [...mockDatabase.music]
+
+export const createMusic = ({ title, artist }: CreateMusicInput): MusicRecord => {
+  const music: MusicRecord = {
+    id: mockDatabase.nextMusicId++,
+    title,
+    artist,
+    createdAt: new Date().toISOString()
+  }
+
+  mockDatabase.music.unshift(music)
+
+  return music
+}
+
+export const removeMusic = (id: number) => {
+  const index = mockDatabase.music.findIndex((music) => music.id === id)
+
+  if (index === -1) {
+    return false
+  }
+
+  mockDatabase.music.splice(index, 1)
+  return true
+}

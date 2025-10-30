@@ -1,5 +1,5 @@
-import { db } from '../_mockDb'
+import { listMovies } from '../_mockDb'
 
 export default defineEventHandler(() => {
-  return db.movies
+  return listMovies()
 })
